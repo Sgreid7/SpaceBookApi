@@ -16,32 +16,35 @@ namespace SpaceBookApi.Controllers
     public DatabaseContext db { get; set; } = new DatabaseContext();
 
     [HttpGet]
-    public List<User> GetAllUsers()
+    public async Task<List<User>> GetAllUsers()
     {
-      var users = db.Users.OrderBy(u => u.Name);
-      return users.ToList();
+      return await db.Users.OrderBy(u => u.Name).ToListAsync();
     }
 
     [HttpGet("{id}")]
-    public User GetSingleUser(int id)
+    public async Task<User> GetSingleUser(int id)
     {
-      var user = db.Users.FirstOrDefault(user => user.Id == id);
-      return user;
+      return await db.Users.FirstOrDefaultAsync(user => user.Id == id);
     }
 
     [HttpPut("{id}")]
 
-    public User UpdateName(int id)
+    public async Task<User> UpdateUser(int id, string name, string state, bool notifications, User newData)
     {
-      var userToUpdate = db.Users.FirstOrDefault(u => u.Id == id);
-      return userToUpdate;
+      newData.Id = id;
+      newData.Name = name;
+      newData.State = state;
+      newData.ReceiveNotifications = notifications;
+      db.Entry(newData).State = EntityState.Modified;
+      await db.SaveChangesAsync();
+      return newData;
     }
 
     [HttpPost]
-    public User CreateUser(User user)
+    public async Task<User> CreateUser(User user)
     {
-      db.Users.Add(user);
-      db.SaveChanges();
+      await db.Users.AddAsync(user);
+      await db.SaveChangesAsync();
       return user;
     }
 

@@ -10,6 +10,8 @@ namespace SpaceBookApi.Models
 
     public DbSet<User> Users { get; set; }
 
+    public DbSet<SubscribedTo> SubscribedTos { get; set; }
+
     private string ConvertPostConnectionToConnectionString(string connection)
     {
       var _connection = connection.Replace("postgres://", String.Empty);

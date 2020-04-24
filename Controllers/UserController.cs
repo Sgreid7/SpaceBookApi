@@ -29,11 +29,12 @@ namespace SpaceBookApi.Controllers
 
     [HttpPut("{id}")]
 
-    public async Task<User> UpdateUser(int id, string name, string state, bool notifications, User newData)
+    public async Task<User> UpdateUser(int id, string name, string state, string email, bool notifications, User newData)
     {
       newData.Id = id;
       newData.Name = name;
       newData.State = state;
+      newData.Email = email;
       newData.ReceiveNotifications = notifications;
       db.Entry(newData).State = EntityState.Modified;
       await db.SaveChangesAsync();

@@ -10,6 +10,8 @@ namespace SpaceBookApi.Models
 
     public string Email { get; set; }
 
+    public string HashedPassword { get; set; }
+
     public DateTime Joined { get; set; } = DateTime.Now;
 
     public string State { get; set; }

@@ -47,7 +47,7 @@ namespace SpaceBookApi
           ValidateLifetime = true,
           ValidateIssuerSigningKey = true,
 
-          IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes("SOME REALLY LONG SECRET STRING"))
+          IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(Configuration["JWT_KEY"]))
         };
       });
 
@@ -78,12 +78,10 @@ namespace SpaceBookApi
         c.RoutePrefix = String.Empty;
       });
 
+      app.UseRouting();
       app.UseAuthentication();
       app.UseAuthorization();
 
-      app.UseRouting();
-
-      app.UseAuthorization();
 
       app.UseEndpoints(endpoints =>
       {

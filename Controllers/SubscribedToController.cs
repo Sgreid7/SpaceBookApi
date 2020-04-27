@@ -6,25 +6,39 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
 using SpaceBookApi.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace SpaceBookApi.Controllers
 {
   [Route("api/[controller]")]
   [ApiController]
+  [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
   public class SubscribedToController : ControllerBase
   {
-    public DatabaseContext db { get; set; } = new DatabaseContext();
+    private readonly DatabaseContext _context;
+
+    public SubscribedToController(DatabaseContext context)
+    {
+      _context = context;
+    }
 
     [HttpGet]
     public async Task<List<SubscribedTo>> GetAllSubscribedTo()
     {
-      return await db.SubscribedTos.OrderBy(satellite => satellite.SatelliteId).ToListAsync();
+      return await _context.SubscribedTos.OrderBy(satellite => satellite.SatelliteId).ToListAsync();
+    }
+
+    [HttpGet("user/{id}")]
+    public async Task<List<SubscribedTo>> GetAllSatellitesForAUser(int userId)
+    {
+      return await _context.SubscribedTos.OrderBy(satellite => satellite.UserId == userId).ToListAsync();
     }
 
     [HttpGet("{id}")]
     public async Task<SubscribedTo> GetSingleOne(string id)
     {
-      return await db.SubscribedTos.FirstOrDefaultAsync(satellite => satellite.SatelliteId == id);
+      return await _context.SubscribedTos.FirstOrDefaultAsync(satellite => satellite.SatelliteId == id);
     }
 
     [HttpPut("{id}")]
@@ -32,25 +46,33 @@ namespace SpaceBookApi.Controllers
     {
       newData.Id = id;
       newData.SatelliteId = satId;
-      db.Entry(newData).State = EntityState.Modified;
-      await db.SaveChangesAsync();
+      _context.Entry(newData).State = EntityState.Modified;
+      await _context.SaveChangesAsync();
       return newData;
     }
 
-    [HttpPost]
-    public async Task<SubscribedTo> CreateSubscribedTo(SubscribedTo item)
+    [HttpPost("{satelliteId}")]
+    public async Task<ActionResult> CreateSubscribedTo(string satelliteId)
     {
-      await db.SubscribedTos.AddAsync(item);
-      await db.SaveChangesAsync();
-      return item;
+      var userId = int.Parse(User.Claims.FirstOrDefault(u => u.Type == "id").Value);
+      var subscribedTo = new SubscribedTo
+      {
+        SatelliteId = satelliteId,
+        UserId = userId,
+      };
+
+      // add to database
+      _context.SubscribedTos.Add(subscribedTo);
+      await _context.SaveChangesAsync();
+      return Ok(subscribedTo);
     }
 
     [HttpDelete("{id}")]
-    public ActionResult DeleteSubscribeTo(int id)
+    public async Task<ActionResult> DeleteSubscribeTo(int id)
     {
-      var itemToDelete = db.SubscribedTos.FirstOrDefault(satellite => satellite.Id == id);
-      db.SubscribedTos.Remove(itemToDelete);
-      db.SaveChanges();
+      var itemToDelete = await _context.SubscribedTos.FirstOrDefaultAsync(satellite => satellite.Id == id);
+      _context.SubscribedTos.Remove(itemToDelete);
+      await _context.SaveChangesAsync();
       return Ok();
     }
   }

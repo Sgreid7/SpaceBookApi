@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using SpaceBookApi.Models;
 using SpaceBookApi.ViewModels;
@@ -19,10 +20,12 @@ namespace SpaceBookApi.Controllers
   [ApiController]
   public class AuthController : ControllerBase
   {
-    private DatabaseContext _context;
+    readonly private DatabaseContext _context;
+    readonly private string JWT_KEY;
 
-    public AuthController(DatabaseContext context)
+    public AuthController(DatabaseContext context, IConfiguration config)
     {
+      JWT_KEY = config["JWT_KEY"];
       _context = context;
     }
 
@@ -41,7 +44,7 @@ namespace SpaceBookApi.Controllers
         }),
         Expires = expirationTime,
         SigningCredentials = new SigningCredentials(
-            new SymmetricSecurityKey(Encoding.ASCII.GetBytes("SOME REALLY LONG SECRET STRING")),
+            new SymmetricSecurityKey(Encoding.ASCII.GetBytes(JWT_KEY)),
             SecurityAlgorithms.HmacSha256Signature
         )
       };
@@ -79,7 +82,6 @@ namespace SpaceBookApi.Controllers
       await _context.SaveChangesAsync();
 
       // generating a JWT
-      user.HashedPassword = null;
       return Ok(new { Token = CreateJWT(user), user = user });
     }
 
@@ -98,7 +100,6 @@ namespace SpaceBookApi.Controllers
       if (results == PasswordVerificationResult.Success)
       {
         // create token
-        user.HashedPassword = null;
         return Ok(new { Token = CreateJWT(user), user = user });
       }
       else

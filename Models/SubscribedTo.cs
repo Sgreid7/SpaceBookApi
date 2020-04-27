@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace SpaceBookApi.Models
 {
   public class SubscribedTo
@@ -7,6 +9,7 @@ namespace SpaceBookApi.Models
     public User User { get; set; }
 
     public int UserId { get; set; }
+    [JsonIgnore]
 
     public string SatelliteId { get; set; }
   }

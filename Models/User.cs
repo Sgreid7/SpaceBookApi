@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace SpaceBookApi.Models
 {
@@ -10,6 +12,7 @@ namespace SpaceBookApi.Models
 
     public string Email { get; set; }
 
+    [JsonIgnore]
     public string HashedPassword { get; set; }
 
     public DateTime Joined { get; set; } = DateTime.Now;
@@ -17,5 +20,7 @@ namespace SpaceBookApi.Models
     public string State { get; set; }
 
     public bool ReceiveNotifications { get; set; }
+
+    public List<SubscribedTo> Satellites { get; set; } = new List<SubscribedTo>();
   }
 }

@@ -6,11 +6,13 @@ namespace SpaceBookApi.Models
   {
     public int Id { get; set; }
 
-    public User User { get; set; }
+    public string SatelliteId { get; set; }
 
     public int UserId { get; set; }
     [JsonIgnore]
 
-    public string SatelliteId { get; set; }
+    public User User { get; set; }
+
+
   }
 }

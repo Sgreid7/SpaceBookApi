@@ -29,7 +29,7 @@ namespace SpaceBookApi.Controllers
       var userId = int.Parse(User.Claims.FirstOrDefault(claim => claim.Type == "id").Value);
 
       // query database for user with the user id
-      var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
+      var user = await _context.Users.Include(i => i.Satellites).FirstOrDefaultAsync(u => u.Id == userId);
 
       return Ok(user);
     }

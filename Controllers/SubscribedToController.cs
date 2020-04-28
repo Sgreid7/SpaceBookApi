@@ -70,7 +70,8 @@ namespace SpaceBookApi.Controllers
     [HttpDelete("{id}")]
     public async Task<ActionResult> DeleteSubscribeTo(int id)
     {
-      var itemToDelete = await _context.SubscribedTos.FirstOrDefaultAsync(satellite => satellite.Id == id);
+      var userId = int.Parse(User.Claims.FirstOrDefault(u => u.Type == "id").Value);
+      var itemToDelete = await _context.SubscribedTos.FirstOrDefaultAsync(subscription => subscription.Id == id && subscription.UserId == userId);
       _context.SubscribedTos.Remove(itemToDelete);
       await _context.SaveChangesAsync();
       return Ok();
